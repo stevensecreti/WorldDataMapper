@@ -12,8 +12,6 @@ const TableContents = (props) =>{
         activeRegion = props.activeMap.name;
         for(let i = 0; i < props.activeMap.regions.length; i++){
             for(let j = 0; j < props.regions.length; j++){
-                console.log(props.activeMap.regions[i]);
-                console.log(props.regions[j]);
                 if(props.activeMap.regions[i] == props.regions[j].id){
                     regions.push(props.regions[j]);
                 }
@@ -73,7 +71,7 @@ const TableContents = (props) =>{
                         name={region.name} capital={region.capital}
                         leader={region.leader} flag={region.flag}
                         landmarks={region.landmarks} setActiveRegion = {props.setActiveRegion}
-                        id = {region.id}
+                        id = {region.id} handleRegionViewer ={handleRegionViewer}
                     />)
                 } 
             </WLMain>

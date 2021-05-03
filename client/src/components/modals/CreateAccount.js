@@ -50,7 +50,7 @@ const CreateAccount = (props) => {
 
 			{
 				loading ? <div />
-					: <WMMain>
+					: <WMMain className = "modal-main">
 						<WRow className="modal-col-gap signup-modal">
 							<WCol size="6">
 								<WInput 
@@ -78,8 +78,8 @@ const CreateAccount = (props) => {
 						/>
 					</WMMain>
 			}
-			<WMFooter>
-				<WButton className="modal-button" onClick={handleCreateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
+			<WMFooter className="modal-footer">
+				<WButton className="modal-button" onClick={handleCreateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded">
 					Submit
 				</WButton>
 			</WMFooter>

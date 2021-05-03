@@ -71,6 +71,18 @@ html, body {
     background-color: white;
 }
 
+.path{
+    width: auto;
+    background-color: $navbar-background-color;
+    color: white;
+    margin-right: auto;
+    vertical-align: middle;
+}
+.path-arrows{
+    vertical-align: middle;
+    margin-right: auto;
+}
+
 .region-viewer-header{
     background-color: $background-color;
 }
@@ -216,7 +228,20 @@ html, body {
 
 .modal-header {
     color: $text-color;
+    background-color: red;
     font-size: 28px;
+}
+
+.modal-main{
+    background-color: black;
+}
+
+.modal-button{
+    background-color: gray;
+    color: black;
+}
+.modal-footer{
+    background-color: black;
 }
 
 .navbar-options {

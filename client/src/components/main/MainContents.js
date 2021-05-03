@@ -8,8 +8,7 @@ import globe            from '../images/globe.jpg'
 
 const MainContents = (props) => {
     let selected = Object.keys(props.activeMap).length === 0 ? true:false;
-    console.log(selected);
-    console.log(props.activeMap);
+    const maps = props.maps;
     return (
         <>
         {
@@ -22,7 +21,7 @@ const MainContents = (props) => {
                 {
                     <MapsList
                         setActiveMap={props.setActiveMap} activeMap = {props.activeMap}
-                        maps={props.maps} deleteMap = {props.deleteMap} renameMap = {props.renameMap}
+                        maps={maps} deleteMap = {props.deleteMap} renameMap = {props.renameMap}
                     />
                 }
             </WLSide>

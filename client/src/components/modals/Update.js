@@ -46,18 +46,18 @@ const Update = (props) => {
 
 			{
 				loading ? <div />
-					: <WMMain>
+					: <WMMain className = "modal-main">
 						<WRow className="modal-col-gap signup-modal">
 							<WCol size="6">
 								<WInput 
 									className="" onBlur={updateInput} name="firstName" labelAnimation="up" 
-									barAnimation="solid" labelText="First Name" wType="outlined" inputType="text" 
+									barAnimation="solid" labelText="First Name" wType="outlined" inputType="text" defaultValue={props.user.firstName}
 								/>
 							</WCol>
 							<WCol size="6">
 								<WInput 
 									className="" onBlur={updateInput} name="lastName" labelAnimation="up" 
-									barAnimation="solid" labelText="Last Name" wType="outlined" inputType="text" 
+									barAnimation="solid" labelText="Last Name" wType="outlined" inputType="text" defaultValue={props.user.lastName}
 								/>
 							</WCol>
 						</WRow>
@@ -65,7 +65,7 @@ const Update = (props) => {
 						<div className="modal-spacer">&nbsp;</div>
 						<WInput 
 							className="modal-input" onBlur={updateInput} name="email" labelAnimation="up" 
-							barAnimation="solid" labelText="Email Address" wType="outlined" inputType="text" 
+							barAnimation="solid" labelText="Email Address" wType="outlined" inputType="text" defaultValue={props.user.email}
 						/>
 						<div className="modal-spacer">&nbsp;</div>
 						<WInput 
@@ -74,8 +74,8 @@ const Update = (props) => {
 						/>
 					</WMMain>
 			}
-			<WMFooter>
-				<WButton className="modal-button" onClick={handleUpdateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
+			<WMFooter className="modal-footer">
+				<WButton className="modal-button" onClick={handleUpdateAccount} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded">
 					Submit
 				</WButton>
 			</WMFooter>

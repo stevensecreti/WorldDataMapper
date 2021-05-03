@@ -44,7 +44,7 @@ const Login = (props) => {
 
 			{
 				loading ? <div />
-					: <WMMain className="main-login-modal">
+					: <WMMain className="modal-main">
 
 						<WInput className="modal-input" onBlur={updateInput} name='email' labelAnimation="up" barAnimation="solid" labelText="Email Address" wType="outlined" inputType='text' />
 						<div className="modal-spacer">&nbsp;</div>
@@ -59,8 +59,8 @@ const Login = (props) => {
 
 					</WMMain>
 			}
-			<WMFooter>
-				<WButton className="modal-button" onClick={handleLogin} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
+			<WMFooter className = "modal-footer">
+				<WButton className="modal-button" onClick={handleLogin} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded">
 					Login
 				</WButton>
 			</WMFooter>

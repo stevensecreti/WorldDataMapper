@@ -42,9 +42,9 @@ const NameMap = (props) => {
 			</WMHeader>
             {
                 loading ? <div />
-                : <WMMain className="main-login-modal">
+                : <WMMain className="modal-main">
 
-                    <WInput className="modal-input" onBlur={updateInput} name='name' labelAnimation="up" barAnimation="solid" labelText="Map Name" wType="outlined" inputType='text' />
+                    <WInput className="modal-input" onBlur={updateInput} name='name' labelAnimation="up" barAnimation="solid" labelText="Map Name" wType="outlined" inputType='text' defaultValue="Enter Name Here"></WInput>
                     {
                         showErr ? <div className='modal-error'>
                             {errorMsg}
@@ -54,8 +54,8 @@ const NameMap = (props) => {
 
                 </WMMain>
             }
-            <WMFooter>
-				<WButton className="modal-button" onClick={handleName} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded" color="primary">
+            <WMFooter className = "modal-footer">
+				<WButton className="modal-button" onClick={handleName} span clickAnimation="ripple-light" hoverAnimation="darken" shape="rounded">
 					Confirm
 				</WButton>
 			</WMFooter>

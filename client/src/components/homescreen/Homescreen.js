@@ -1,6 +1,7 @@
 import React, { useState, useEffect } 	from 'react';
 import Logo 							from '../navbar/Logo';
 import NavbarOptions 					from '../navbar/NavbarOptions';
+import RegionPath						from '../navbar/RegionPath';
 import Login 							from '../modals/Login';
 import Delete 							from '../modals/Delete';
 import Update 							from '../modals/Update';
@@ -49,7 +50,6 @@ const Homescreen = (props) => {
 	if(regionQuery.loading) { console.log(regionQuery.loading, 'loading'); }
 	if(regionQuery.error) 	{ console.log(regionQuery.error, 'error'); }
 	if(regionQuery.data) {regions = regionQuery.data.getAllRegions; }
-
 
 	const auth = props.user === null ? false : true;
 	let displayName = "";
@@ -102,10 +102,10 @@ const Homescreen = (props) => {
 			owner: props.user._id,
 			regions: [],
 		}
-		const { data } = await AddMap({ variables: {map : mapList}, refetchQueries: [{ query: GET_DB_MAPS }] });
-		setActiveMap({});
-		refetch();
-	};
+		const data = await AddMap({ variables: {map : mapList}, refetchQueries: [{ query: GET_DB_MAPS }] });
+		await refetchMaps(refetch);
+		window.location.reload(true);
+	}
 
 	const handleCreateNewRegion = async () =>{
 		let map = false;
@@ -132,17 +132,9 @@ const Homescreen = (props) => {
 			parentRegion: regionId,
 		}
 		const { data } = await AddRegion({ variables: {region: regionList}, refetchQueries: [{ query: GET_DB_REGIONS }] });
-		const{ added } = await AddSubregion({ variables: {_id: regionId, region: region_id, map: map}});	
-		let aMap = activeMap;
-		let aReg = activeRegion;
-		refetch();
-		regionQuery.refetch();
-		setActiveMap({});
-		setActiveRegion({});
-		setActiveMap(aMap);
-		setActiveRegion(aReg);
-		regionQuery.refetch();
-		refetch();
+		const{ added } = await AddSubregion({ variables: {_id: regionId, region: region_id, map: map}, refetchQueries: [{ query: GET_DB_MAPS }] });	
+	 	await refetchMaps(refetch);
+		await refetchRegions(regionQuery.refetch);
 	};
 
 	const deleteMap = async (_id) => {
@@ -158,6 +150,7 @@ const Homescreen = (props) => {
 	}
 
 	const handleSetActiveMap = (id) => {
+		refetchRegions(regionQuery.refetch);
 		const map = maps.find(map => map.id === id || map._id === id);
 		setActiveMap(map);
 	}
@@ -165,6 +158,15 @@ const Homescreen = (props) => {
 	const handleSetActiveRegion = (id) => {
 		const region = regions.find(region => region.id === id || region._id === id);
 		setActiveRegion(region);
+	}
+
+	const handleAncestorClick = (reg) => {
+		if(reg._id === activeMap._id){
+			setActiveRegion({});
+		}
+		else{
+			setActiveRegion(reg);
+		}
 	}
 
 	const handleCloseMap = () => {
@@ -206,13 +208,19 @@ const Homescreen = (props) => {
 	return(
 		<WLayout wLayout="header">
 			<WLHeader>
-				<WNavbar color="colored">
+				<WNavbar color="colored" className="navbar">
 					<ul>
 						<WNavItem>
 							<Logo className='logo' 
 								closeActiveMap = {handleCloseMap}
 							/>
 						</WNavItem>
+					</ul>
+					<ul>
+						<RegionPath
+							activeMap = {activeMap} activeRegion = {activeRegion} 
+							regions = {regions} handleAncestorClick={handleAncestorClick}
+						/>
 					</ul>
 					<ul>
 						<NavbarOptions
@@ -247,7 +255,7 @@ const Homescreen = (props) => {
 			}
 
 			{
-				showUpdate && (<Update fetchUser={props.fetchUser} setShowUpdate={setShowUpdate} userId={props.user._id}/>)
+				showUpdate && (<Update fetchUser={props.fetchUser} setShowUpdate={setShowUpdate} userId={props.user._id} user = {props.user}/>)
 			}
 			{
 				showRename && (<NameMap setShowRename={setShowRename} renameId={renameId} setActiveMap = {setActiveMap} refetch ={refetch} createNewMap = {createNewMap}/>)
