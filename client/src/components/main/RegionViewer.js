@@ -1,10 +1,12 @@
 import React from 'react';
 import { PromiseProvider } from 'mongoose';
 import {WLayout, WLHeader, WLSide, WLMain, WSidebar, WRow, WCol, WButton} from 'wt-frontend';
+import LandmarkEntry from './LandmarkEntry';
 
 const RegionViewer = (props) =>{
     let viewing = []
     let subregions = 0;
+    let landmarks = [];
     if(Object.keys(props.activeRegion).length === 0){
         viewing = props.activeMap;
         subregions = viewing.regions.length;
@@ -12,10 +14,15 @@ const RegionViewer = (props) =>{
     else{
         viewing = props.activeRegion;
         subregions = viewing.subregions.length
+        landmarks = viewing.landmarks;
     }
 
     const handleSpreadsheetView = () =>{
         props.toggleRegionViewer();
+    }
+
+    const handleAddLandmark = () =>{
+        props.handleAddLandmark();
     }
 
     return(
@@ -39,9 +46,17 @@ const RegionViewer = (props) =>{
             </WLSide>
             <WLMain className="region-viewer-main">
                 <div className="region-viewer-landmarks">Region Landmarks:</div>
-                <div className="region-viewer-landmarks"></div>
-                <div className="region-viewer-footer">
-                    
+                <div className="region-viewer-landmarks">
+                    {
+                        landmarks && landmarks.map((landmark, index) =>
+                                <LandmarkEntry  name = {landmark} index = {index} deleteLM = {props.deleteLM}
+                                                renameLM = {props.renameLM}
+                                />
+                            )
+                    }
+                </div>
+                <div className="landmarks-footer">
+                    <WButton className="add-landmark" onClick= {handleAddLandmark}>Add New Landmark</WButton> 
                 </div>
             </WLMain>
         </WLayout>

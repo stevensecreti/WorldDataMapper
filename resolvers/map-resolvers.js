@@ -101,6 +101,113 @@ module.exports = {
 				if(updated) return true;
 				else return false;
 			}	
+		},
+		updateRegionField: async (_, args) =>{
+			const { _id, field, value } = args;
+			const objId = new ObjectId(_id);
+			if(field == 1){
+				const updated = await Region.updateOne({_id: objId}, {name: value});
+				if(updated) return true;
+				else return false;
+			}
+			else if(field == 2){
+				const updated = await Region.updateOne({_id: objId}, {capital: value});
+				if(updated) return true;
+				else return false;
+			}
+			else if(field == 3){
+				const updated = await Region.updateOne({_id: objId}, {leader: value});
+				if(updated) return true;
+				else return false;
+			}
+		},
+		deleteRegion: async (_, args) =>{
+			const { _id } = args;
+			const objId = new ObjectId(_id);
+			const del = await Region.deleteOne({_id: _id});
+			if(del) return true;
+			else return false;
+		},
+		deleteSubregion: async (_, args) =>{
+			const { _id, id, map, index } = args;
+			const objId = new ObjectId(_id);
+			if(map){
+				const parent = await Map.findOne({_id: objId});
+				let regs = parent.regions;
+				if(index == -1){
+					regs = regs.filter(reg => reg != id);
+					const updated = await Map.updateOne({_id: objId}, {regions: regs});
+					if(updated) return true;
+					else return false;
+				}
+				else{
+					regs.splice(index, 0, id);
+					const updated = await Map.updateOne({_id: objId}, {regions: regs});
+					if(updated) return true;
+					else return false;
+				}	
+			}
+			else{
+				const parent = await Region.findOne({_id: objId});
+				let regs = parent.subregions;
+				if(index == -1){
+					regs = regs.filter(reg => reg != id);
+					const updated = await Region.updateOne({_id: objId}, {regions: regs});
+					if(updated) return true;
+					else return false;
+				}
+				else{
+					regs.splice(index, 0, id);
+					const updated = await Region.updateOne({_id: objId}, {regions: regs});
+					if(updated) return true;
+					else return false;
+				}
+			}
+		},
+		pushSort: async (_, args) =>{
+			const { _id, ids, map } = args;
+			const objId = new ObjectId(_id);
+			if(map){
+				const updated = await Map.updateOne({_id: _id}, {regions: ids});
+				if(updated) return true;
+				else return false;
+			}
+			else{
+				const updated = await Region.updateOne({_id: _id}, {subregions: ids});
+				if(updated) return true;
+				else return false;
+			}
+		},
+		addLandmark: async (_, args) =>{
+			const { _id, landmark } = args;
+			const objId = new ObjectId(_id);
+			const found = await Region.findOne({_id: objId});
+			landmarks = found.landmarks;
+			landmarks.push(landmark);
+			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+			if(updated) return true;
+			else return false;
+
+		},
+		deleteLandmark: async (_, args) =>{
+			const { _id, landmark } = args;
+			const objId = new ObjectId(_id);
+			const found = await Region.findOne({_id: objId});
+			landmarks = found.landmarks;
+			landmarks.splice(landmark, 1);
+			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+			if(updated) return true;
+			else return false;
+		},
+		renameLandmark: async (_, args) =>{
+			const { _id, landmark, name } = args;
+			const objId = new ObjectId(_id);
+			const found = await Region.findOne({_id: objId});
+			landmarks = found.landmarks;
+			landmarks[landmark] = name;
+			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+			if(updated) return true;
+			else return false;
 		}
 	}
 }

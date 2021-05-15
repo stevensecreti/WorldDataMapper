@@ -39,7 +39,10 @@ const MainContents = (props) => {
                 activeMap = {props.activeMap} activeRegion = {props.activeRegion}
                 regions = {props.regions} createNewRegion = {props.createNewRegion}
                 setActiveRegion = {props.setActiveRegion} toggleRegionViewer={props.toggleRegionViewer}
-                spreadSheet={props.spreadSheet}
+                spreadSheet={props.spreadSheet} editRegion = {props.editRegion} deleteRegion = {props.deleteRegion}
+                handleSort = {props.handleSort} handleAddLandmark = {props.handleAddLandmark}
+                deleteLM = {props.deleteLM} renameLM = {props.renameLM}
+
         />
         }
         </>

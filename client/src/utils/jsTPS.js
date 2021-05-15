@@ -3,18 +3,18 @@ export class jsTPS_Transaction {
     doTransaction() {};
     undoTransaction () {};
 }
-/*  Handles list name changes, or any other top level details of a todolist that may be added   */
-export class UpdateListField_Transaction extends jsTPS_Transaction {
-    constructor(_id, field, prev, update, callback) {
+
+export class UpdateRegionField_Transaction extends jsTPS_Transaction {
+    constructor(_id, field, val, prev, callback) {
         super();
-        this.prev = prev;
-        this.update = update;
-        this.field = field;
         this._id = _id;
+        this.field = field;
+        this.val = val;
+        this.prev = prev;
         this.updateFunction = callback;
     }
     async doTransaction() {
-		const { data } = await this.updateFunction({ variables: { _id: this._id, field: this.field, value: this.update }});
+		const { data } = await this.updateFunction({ variables: { _id: this._id, field: this.field, value: this.val }});
 		return data;
     }
     async undoTransaction() {
@@ -24,78 +24,60 @@ export class UpdateListField_Transaction extends jsTPS_Transaction {
 }
 
 export class SortItems_Transaction extends jsTPS_Transaction{
-    constructor(list, column, items, callback){
+    constructor(_id, idsSort, idsPrev, map, callback){
         super();
-        this.list = list;
-        this.column = column;
+        this._id = _id;
+        this.idsSort = idsSort;
+        this.idsPrev = idsPrev;
+        this.map = map;
         this.updateFunction = callback;
-        this.items = items;
     }
     async doTransaction(){
-        const { data } = await this.updateFunction({ variables: { _id: this.list, column: this.column, items: this.items }});
+        const { data } = await this.updateFunction({ variables: { _id: this._id, ids: this.idsSort, map: this.map }});
     }
     async undoTransaction(){
-        const { data } = await this.updateFunction({ variables: { _id: this.list, column: 5, items: this.items}});
+        const { data } = await this.updateFunction({ variables: { _id: this._id, ids: this.idsPrev, map: this.map }});
     }
 }
 
-/*  Handles item reordering */
-export class ReorderItems_Transaction extends jsTPS_Transaction {
-    constructor(listID, itemID, dir, callback) {
+export class DeleteRegion_Transaction extends jsTPS_Transaction{
+    constructor(_id, id, map, index, deleteFunction){
         super();
-        this.listID = listID;
-        this.itemID = itemID;
-		this.dir = dir;
-		this.revDir = dir === 1 ? -1 : 1;
-		this.updateFunction = callback;
-	}
-
-    async doTransaction() {
-		const { data } = await this.updateFunction({ variables: { itemId: this.itemID, _id: this.listID, direction: this.dir }});
-		return data;
+        this._id = _id;
+        this.id = id;
+        this.map = map;
+        this.index = index;
+        this.deleteFunction = deleteFunction;
+    }
+    async doTransaction(){
+        const { data } = await this.deleteFunction({ variables: {_id: this._id, id: this.id, map: this.map, index: -1}});
+    }
+    async undoTransaction(){
+        const { data } = await this.deleteFunction({ variables: {_id: this._id, id: this.id, map: this.map, index: this.index}});
     }
 
-    async undoTransaction() {
-		const {data} = await this.updateFunction({ variables: { itemId: this.itemID, _id: this.listID, direction: this.revDir }});
-		return data;
-
-    }
-    
 }
 
-export class EditItem_Transaction extends jsTPS_Transaction {
-	constructor(listID, itemID, field, prev, update, flag, callback) {
-		super();
-		this.listID = listID;
-		this.itemID = itemID;
-		this.field = field;
-		this.prev = prev;
-		this.update = update;
-		this.flag = flag;
-		this.updateFunction = callback;
-	}	
-
-	async doTransaction() {
-		const { data } = await this.updateFunction({ 
-				variables:{  itemId: this.itemID, _id: this.listID, 
-							 field: this.field, value: this.update, 
-							 flag: this.flag 
-						  }
-			});
-		return data;
+export class AddRegion_Transaction extends jsTPS_Transaction{
+    constructor(_id, id, map, addFunction, deleteFunction){
+        super();
+        this._id = _id;
+        this.id = id;
+        this.map = map;
+        this.addFunction = addFunction;
+        this.deleteFunction = deleteFunction;
     }
 
-    async undoTransaction() {
-		const { data } = await this.updateFunction({ 
-				variables:{  itemId: this.itemID, _id: this.listID, 
-							field: this.field, value: this.prev, 
-							flag: this.flag 
-						  }
-			});
-		return data;
-
+    async doTransaction(){
+        const { data } = await this.addFunction({ variables: {_id: this._id, region: this.id, map: this.map}});
     }
+    async undoTransaction(){
+        const { data } = await this.deleteFunction({ variables: {_id: this._id, id: this.id, map: this.map, index: -1}});
+    }
+
 }
+
+
 
 /*  Handles create/delete of list items */
 export class UpdateListItems_Transaction extends jsTPS_Transaction {

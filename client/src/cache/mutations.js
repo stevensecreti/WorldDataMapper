@@ -67,3 +67,45 @@ export const ADD_SUBREGION = gql`
 		addSubregion(_id: $_id, region: $region, map: $map)
 	}
 `;
+
+export const UPDATE_REGION_FIELD = gql`
+	mutation UpdateRegionField($_id: String!, $field: Int!, $value: String!){
+		updateRegionField(_id: $_id, field: $field, value: $value)
+	}
+`;
+
+export const DELETE_REGION = gql`
+	mutation DeleteRegion($_id: String!){
+		deleteRegion(_id: $_id)
+	}
+`;
+
+export const DELETE_SUBREGION = gql`
+	mutation DeleteSubregion($_id: String!, $id: Int!, $map: Boolean!, $index: Int!){
+		deleteSubregion(_id: $_id, id: $id, map: $map, index: $index)
+	}
+`;
+
+export const PUSH_SORT = gql`
+	mutation PushSort($_id: String!, $ids: [Int], $map: Boolean!){
+		pushSort(_id: $_id, ids: $ids, map: $map)
+	}
+`;
+
+export const ADD_LANDMARK = gql`
+	mutation AddLandmark($_id: String!, $landmark: String!){
+		addLandmark(_id: $_id, landmark: $landmark)
+	}
+`;
+
+export const DELETE_LANDMARK = gql`
+	mutation DeleteLandmark($_id: String!, $landmark: Int!){
+		deleteLandmark(_id: $_id, landmark: $landmark)
+	}
+`;
+
+export const RENAME_LANDMARK = gql`
+	mutation RenameLandmark($_id: String!, $landmark: Int!, $name: String!){
+		renameLandmark(_id: $_id, landmark: $landmark, name: $name)
+	}
+`;

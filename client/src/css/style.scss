@@ -91,19 +91,28 @@ html, body {
     color: white;
 }
 .region-viewer-main{
+    position: relative;
     background-color: black;
     color: white;
 }
 .region-viewer-landmarks{
 
 }
-.region-viewer-footer{
-    background-color: $background-color;
-    border-color: white;
-    height: 7.5%;
-    width: auto;
-    bottom: 0px;
-    position: fixed;
+
+
+
+.landmarks-footer{
+    background-color: black;
+    color: white;
+    position: absolute;
+    width: 100%;
+    right: 0;
+    bottom: 0;
+}
+.add-landmark{
+    margin-right: auto;
+    margin-left: auto;
+    background-color: $sidebar-background-color;
 }
 
 
@@ -130,6 +139,36 @@ html, body {
     background-color: var(--light-purple);
 }
 
+.landmark-buttons{
+    margin-right: auto;
+}
+.landmark-button{
+    background-color: black;
+    color: white;
+    font-weight: bold;  
+}
+
+.landmark-button-edit{
+    background-color: black;
+    color: white;
+}
+.landmark-button-edit:hover{
+    background-color: $background-color;
+}
+
+.landmark-button-delete{
+    background-color: black;
+    color: white;
+}
+.landmark-button-delete:hover{
+    background-color: $background-color;
+}
+
+
+
+
+
+
 .add-subregion{
     background-color: $background-color;
     color: green;
@@ -150,6 +189,23 @@ html, body {
 .redo:hover{
     background-color: $sidebar-background-color;
 }
+
+.sister{
+    background-color: $navbar-background-color;
+    color: gray;
+}
+.sister:hover{
+    background-color: $background-color;
+}
+.brother{
+    background-color: $navbar-background-color;
+    color: gray;
+}
+.brother:hover{
+    background-color: $background-color;
+}
+
+
 
 .region-title{
     color: white;
