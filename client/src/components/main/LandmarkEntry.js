@@ -13,7 +13,7 @@ const LandmarkEntry = (props) => {
 
     return(
         <WNavItem className="landmark-buttons">
-            <WButton className = "landmark-button">
+            <WButton className = "landmark-button" onClick = {props.test}>
                 {props.name}
             </WButton>
             <WButton onClick = {handleLMRename} className = "landmark-button-edit">

@@ -41,7 +41,10 @@ const MainContents = (props) => {
                 setActiveRegion = {props.setActiveRegion} toggleRegionViewer={props.toggleRegionViewer}
                 spreadSheet={props.spreadSheet} editRegion = {props.editRegion} deleteRegion = {props.deleteRegion}
                 handleSort = {props.handleSort} handleAddLandmark = {props.handleAddLandmark}
-                deleteLM = {props.deleteLM} renameLM = {props.renameLM}
+                deleteLM = {props.deleteLM} renameLM = {props.renameLM} changeParent = {props.changeParent}
+                activeSubs = {props.activeSubs} landmarks = {props.landmarks} handleRefetch = {props.handleRefetch}
+                test = {props.test} childLandmarks = {props.childLandmarks} imagePath = {props.imagePath}
+                undo = {props.undo} redo = {props.redo} tps = {props.tps} setActiveFromSpread = {props.setActiveFromSpread}
 
         />
         }

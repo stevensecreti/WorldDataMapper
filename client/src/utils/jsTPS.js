@@ -1,3 +1,5 @@
+import { isField } from "@apollo/client/utilities";
+
 export class jsTPS_Transaction {
     constructor() {};
     doTransaction() {};
@@ -73,6 +75,86 @@ export class AddRegion_Transaction extends jsTPS_Transaction{
     }
     async undoTransaction(){
         const { data } = await this.deleteFunction({ variables: {_id: this._id, id: this.id, map: this.map, index: -1}});
+    }
+
+}
+export class DeleteLandmark_Transaction extends jsTPS_Transaction{
+    constructor(_id, index, landmark, deleteFunction){
+        super();
+        this._id = _id;
+        this.index = index;
+        this.landmark = landmark;
+        this.deleteFunction = deleteFunction;
+    }
+
+    async doTransaction(){
+        const { data } = await this.deleteFunction({ variables: {_id: this._id, landmark: this.index, name: this.landmark, code: 0}});
+    }
+    async undoTransaction(){
+        const { data } = await this.deleteFunction({ variables: {_id: this._id, landmark: this.index, name: this.landmark, code: 1}});
+    }
+
+}
+
+export class AddLandmark_Transaction extends jsTPS_Transaction{
+    constructor(_id, landmark, addFunction){
+        super();
+        this._id = _id;
+        this.landmark = landmark;
+        this.addFunction = addFunction;
+    }
+
+    async doTransaction(){
+        const { data } = await this.addFunction({ variables: {_id: this._id, landmark: this.landmark, code: 0}});
+    }
+    async undoTransaction(){
+        const { data } = await this.addFunction({ variables: {_id: this._id, landmark: this.landmark, code: 1}});
+    }
+
+}
+
+export class RenameLandmark_Transaction extends jsTPS_Transaction{
+    constructor(_id, landmark, name, prevName, renameFunction){
+        super();
+        this._id = _id;
+        this.landmark = landmark;
+        this.name = name;
+        this.prevName = prevName;
+        this.renameFunction = renameFunction;
+    }
+
+    async doTransaction(){
+        const { data } = await this.renameFunction({ variables: {_id: this._id, landmark: this.landmark, name: this.name}});
+    }
+    async undoTransaction(){
+        const { data } = await this.renameFunction({ variables: {_id: this._id, landmark: this.landmark, name: this.prevName}});
+    }
+
+}
+
+export class ChangeParent_Transaction extends jsTPS_Transaction{
+    constructor(_id, old_id, new_id, id, map, indexNew, indexOld, deleteFunction, changeFunction){
+        super();
+        this._id = _id;
+        this.old_id = old_id;
+        this.new_id = new_id;
+        this.id = id;
+        this.map = map;
+        this.indexNew = indexNew;
+        this.indexOld = indexOld;
+        this.deleteFunction = deleteFunction;
+        this.changeFunction = changeFunction;
+    }
+
+    async doTransaction(){
+        const { data1 } = await this.deleteFunction({variables: {_id: this.old_id, id: this.id, map: this.map, index: -1}});
+        const { data2 } = await this.changeFunction({ variables: {_id: this._id, new_parent: this.new_id}});
+        const { data3 } = await this.deleteFunction({ variables: {_id: this.new_id, id: this.id, map: false, index: this.indexNew}});
+    }
+    async undoTransaction(){
+        const { data1 } = await this.deleteFunction({variables: {_id: this.new_id, id: this.id, map: false, index: -1}});
+        const { data2 } = await this.changeFunction({ variables: {_id: this._id, new_parent: this.old_id}});
+        const { data3 } = await this.deleteFunction({ variables: {_id: this.old_id, id: this.id, map: this.map, index: this.indexOld}});
     }
 
 }

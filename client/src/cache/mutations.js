@@ -93,19 +93,25 @@ export const PUSH_SORT = gql`
 `;
 
 export const ADD_LANDMARK = gql`
-	mutation AddLandmark($_id: String!, $landmark: String!){
-		addLandmark(_id: $_id, landmark: $landmark)
+	mutation AddLandmark($_id: String!, $landmark: String!, $code: Int!){
+		addLandmark(_id: $_id, landmark: $landmark, code: $code)
 	}
 `;
 
 export const DELETE_LANDMARK = gql`
-	mutation DeleteLandmark($_id: String!, $landmark: Int!){
-		deleteLandmark(_id: $_id, landmark: $landmark)
+	mutation DeleteLandmark($_id: String!, $landmark: Int!, $name: String!, $code: Int!){
+		deleteLandmark(_id: $_id, landmark: $landmark, name: $name, code: $code)
 	}
 `;
 
 export const RENAME_LANDMARK = gql`
 	mutation RenameLandmark($_id: String!, $landmark: Int!, $name: String!){
 		renameLandmark(_id: $_id, landmark: $landmark, name: $name)
+	}
+`;
+
+export const CHANGE_PARENT = gql`
+	mutation ChangeParent($_id: String!, $new_parent: String!){
+		changeParent(_id: $_id, new_parent: $new_parent)
 	}
 `;

@@ -11,18 +11,48 @@ const TableEntry = (props) =>{
     const nameEdit = props.nameEditing;
     const capEdit = props.capEditing;
     const leaderEdit = props.leaderEditing;
+    let imagePath = props.imagePath;
+    let image = "";
+
 
     const[editingName, toggleNameEdit] = useState(nameEdit);
     const[editingCap, toggleCapEdit] = useState(capEdit);
     const[editingLeader, toggleLeaderEdit] = useState(leaderEdit);
-    const[key, changeKey]                   = useState(-1);
+    const[key, changeKey]                  = useState(-1);
+    const[imageP, changeImage]               = useState("");
+    
 
 
     useEffect(() => {
         toggleNameEdit(nameEdit);
         toggleCapEdit(capEdit);
         toggleLeaderEdit(leaderEdit);
+
+        loadImage();
+        //try{
+            //const { default: src } = await import()
+            //image = requestImageFile(`../The World/${imagePath} Flag.png`);
+            //image = import(`../The World/${imagePath} Flag.png`);
+            //console.log(image);
+        //}
+        //catch (err) {
+            //console.log(err);
+        //}
 	});
+
+    const loadImage = async () =>{
+        try{
+            //image = require('../The World' + imagePath + '.png');
+            console.log(imagePath);
+            image = require('../../assets/The World' + imagePath + '/' + props.name + ' Flag.png');
+            changeImage(image);
+            //image = requestImageFile;
+        }
+        catch(e){
+            console.log(imagePath);
+            console.log(e);
+        }
+    }
 
     const handleNameEdit = (e) =>{
         props.toggleEditing();
@@ -107,7 +137,7 @@ const TableEntry = (props) =>{
         props.deleteRegion(props._id);
     }
     const handleRegionViewer = () =>{
-        props.handleRegionViewer();
+        props.handleRegionViewerLandmarks(props._id);
     }
 
     return(
@@ -124,7 +154,7 @@ const TableEntry = (props) =>{
                     autoFocus={true} defaultValue={name} type='text'
                     wType="outlined" barAnimation="solid" inputClass="table-input-class"
                 />
-                : <div className = "table-text" onClick={handleNameEditToggle}>
+                : <div className = "table-text-name" onClick={handleNameEditToggle}>
                     {name}
                     <i className="material-icons" onClick={handleSetActiveRegion}>navigate_next</i>
                 </div>
@@ -158,8 +188,10 @@ const TableEntry = (props) =>{
                     </div>
                 }
             </WCol>
-            <WCol size="1">{props.flag}</WCol>
-            <WCol size="3" onClick={handleRegionViewer}>{props.landmarks}</WCol>
+            <WCol size="1"><img src = {imageP} alt={props.name} className = 'tableFlags'/></WCol>
+            <WCol size="3" onClick={handleRegionViewer}>
+                {props.landmarks}
+            </WCol>
         </WRow>
     );
 }

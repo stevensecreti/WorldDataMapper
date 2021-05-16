@@ -1,4 +1,4 @@
-import React 			from 'react';
+import React, {useState} 			from 'react';
 import Homescreen 		from './components/homescreen/Homescreen';
 import { useQuery } 	from '@apollo/client';
 import * as queries 	from './cache/queries';
@@ -8,6 +8,8 @@ import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom';
 const App = () => {
 	let user = null;
     let transactionStack = new jsTPS();
+
+	const [routePath, setRoutePath] = useState("/welcome");
 	
     const { loading, error, data, refetch } = useQuery(queries.GET_DB_USER);
 
@@ -18,15 +20,19 @@ const App = () => {
 		if(getCurrentUser !== null) { user = getCurrentUser; }
     }
 
+	const handleRoute = (r) =>{
+		//setRoutePath(r);
+	}
+
 	return(
 		<BrowserRouter>
 			<Switch>
-				<Redirect exact from="/" to={ {pathname: "/home"} } />
+				<Redirect exact from="/" to={ {pathname: routePath} } />
 				<Route 
-					path="/home" 
+					path={routePath}
 					name="home" 
 					render={() => 
-						<Homescreen tps={transactionStack} fetchUser={refetch} user={user} />
+						<Homescreen tps={transactionStack} fetchUser={refetch} user={user} route = {handleRoute}/>
 					} 
 				/>
 				<Route/>

@@ -2,6 +2,7 @@ import React, { useState } 	from 'react';
 import { ADD_LANDMARK, RENAME_LANDMARK }       from '../../cache/mutations';
 import { useMutation }    	from '@apollo/client';
 import { WModal, WMHeader, WMMain, WMFooter, WButton, WInput } from 'wt-frontend';
+import {AddLandmark_Transaction, RenameLandmark_Transaction} from '../../utils/jsTPS';
 
 const NameLandmark = (props) => {
     const [input, setInput] = useState({_id: props._id, name: ''});
@@ -20,13 +21,20 @@ const NameLandmark = (props) => {
     const handleName = async (e) => {
         if(props.index == -1){
             const{_id, name} = input
-            AddLandmark({ variables: {_id: _id, landmark: name}});
+            let transaction = new AddLandmark_Transaction(_id, name, AddLandmark);
+		    props.tps.addTransaction(transaction);
+		    props.redo();
+            //AddLandmark({ variables: {_id: _id, landmark: name}} );
             props.handleRefetch();
             props.setShowLM();
         }
         else{
-            const{_id, name} = input   
-            RenameLandmark({ variables: {_id: _id, landmark: props.index, name: name}});
+            const{_id, name} = input;   
+            console.log(props.prevName);
+            let transaction = new RenameLandmark_Transaction(_id, props.index, name, props.prevName, RenameLandmark);
+            props.tps.addTransaction(transaction);
+		    props.redo();
+            //RenameLandmark({ variables: {_id: _id, landmark: props.index, name: name}});
             props.handleRefetch();
             props.setShowLM();
         }

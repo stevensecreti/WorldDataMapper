@@ -8,6 +8,7 @@ import Update 							from '../modals/Update';
 import CreateAccount 					from '../modals/CreateAccount';
 import NameMap							from '../modals/NameMap';
 import NameLandmark						from '../modals/NameLandmark';
+import ChangeParent						from '../modals/ChangeParent';
 import Welcome 							from '../main/Welcome';
 import MainContents						from '../main/MainContents';
 import { GET_DB_MAPS } 				from '../../cache/queries';
@@ -22,7 +23,9 @@ import { UpdateRegionField_Transaction,
 	EditItem_Transaction,
 	SortItems_Transaction,
 	DeleteRegion_Transaction,
-	AddRegion_Transaction} 				from '../../utils/jsTPS';
+	AddRegion_Transaction,
+	DeleteLandmark_Transaction,
+	ChangeParent_Transaction} 				from '../../utils/jsTPS';
 import WInput from 'wt-frontend/build/components/winput/WInput';
 import { isObjectType } from 'graphql';
 
@@ -30,8 +33,13 @@ import { isObjectType } from 'graphql';
 const Homescreen = (props) => {
 	let maps 								= [];
 	let regions 							= [];
+	let subregions 							= [];
+	let landmarks							= [];
+	let childLandmarks						= [];
+	let regImagePath 						="";
 	const [activeMap, setActiveMap] 		= useState({});
 	const [activeRegion, setActiveRegion]	= useState({});
+	const [activeSubs, setActiveSubs]		= useState({});
 	const [renameId, setRenameId]			= useState('');
 	const [deleteType, setDeleteType]		= useState(-1);
 	const [deleteId, setDeleteId]			= useState('');
@@ -42,7 +50,9 @@ const Homescreen = (props) => {
 	const [showRename, toggleShowRename]	= useState(false);
 	const [showDelete, toggleShowDelete]	= useState(false);
 	const [showLM, toggleShowLM]			= useState(false);
+	const [showChangeParent, toggleShowCP]  = useState(false); 
 	const [spreadSheet, toggleSpreadSheet]	= useState(true);
+	const [landmarkName, setLandmarkName]	= useState("");
 
 	const[AddMap]							= useMutation(mutations.ADD_MAP);
 	const[DeleteMap]						= useMutation(mutations.DELETE_MAP);
@@ -53,16 +63,81 @@ const Homescreen = (props) => {
 	const[DeleteSubregion]					= useMutation(mutations.DELETE_SUBREGION);
 	const[PushSort]							= useMutation(mutations.PUSH_SORT);
 	const[DeleteLandmark]					= useMutation(mutations.DELETE_LANDMARK);
+	const[ChangeParentRegion]						= useMutation(mutations.CHANGE_PARENT);
+
+	const findChildLandmarks = () =>{
+		childLandmarks = [];
+		let queue = [];
+		queue.push(activeRegion.id);
+		for(let i = 0; i < activeRegion.subregions.length; i++){
+			queue.push(activeRegion.subregions[i]);
+		}
+		while(queue.length > 0){
+			let node = queue.shift();
+			let temp = regions.find(region => region.id === queue[0]);
+			if(temp !== undefined){
+				for(let j = 0; j < temp.subregions.length; j++){
+					queue.push(temp.subregions[j]);
+				}
+				for(let k = 0; k < temp.landmarks.length; k++){
+					childLandmarks.push(temp.landmarks[k]);
+				}
+			}
+		}
+	}
 
 	const { loading, error, data, refetch } = useQuery(GET_DB_MAPS);
 	if(loading) { console.log(loading, 'loading'); }
 	if(error) { console.log(error, 'error'); }
-	if(data) { maps = data.getAllMaps; }
+	if(data) { maps = data.getAllMaps;}
 
 	const regionQuery  = useQuery(GET_DB_REGIONS);
 	if(regionQuery.loading) { console.log(regionQuery.loading, 'loading'); }
 	if(regionQuery.error) 	{ console.log(regionQuery.error, 'error'); }
-	if(regionQuery.data) {regions = regionQuery.data.getAllRegions; }
+	if(regionQuery.data) {regions = regionQuery.data.getAllRegions; 
+		if(Object.keys(activeRegion).length !== 0){
+			subregions = [];
+			for(let i = 0; i < activeRegion.subregions.length; i++){
+				for(let j = 0; j < regions.length; j++){
+					if(activeRegion.subregions[i] == regions[j].id){
+						subregions.push(regions[j]);
+					}
+				}
+			}
+			landmarks = [];
+			for(let k = 0; k < activeRegion.landmarks.length; k++){
+				landmarks.push(activeRegion.landmarks[k]);
+			}
+			findChildLandmarks();
+			let regionList = [];
+			regionList.push(activeRegion);
+			let regionTemp = activeRegion;
+			while(regionTemp.parentRegion != activeMap._id){
+				regionTemp = regions.find(region => region._id == regionTemp.parentRegion);
+				regionList.unshift(regionTemp);
+			}
+			regionList.unshift(activeMap);
+			regImagePath = "";
+			for(let m = 0; m < regionList.length; m++){
+				regImagePath = regImagePath + "/" + regionList[m].name;
+			}
+			console.log(regImagePath);
+		}
+		else if(Object.keys(activeMap).length !== 0){
+			for(let i = 0; i < activeMap.regions.length; i++){
+				for(let j = 0; j < regions.length; j++){
+					if(activeMap.regions[i] == regions[j].id){
+						subregions.push(regions[j]);
+					}
+				}
+			}
+			regImagePath = "";
+			regImagePath = "/" + activeMap.name;
+		}
+		else{
+			subregions = [];
+		}
+	}
 
 	const auth = props.user === null ? false : true;
 	let displayName = "";
@@ -74,6 +149,29 @@ const Homescreen = (props) => {
 	else{
 		displayName = "";
 	}
+
+	if(auth){
+		if(Object.keys(activeMap).length !== 0){
+			if(Object.keys(activeRegion).length !== 0){
+				if(!spreadSheet){
+					props.route("/RegionView/");
+				}
+				else{
+					props.route("/Spreadsheet/");
+				}
+			}
+			else{
+				props.route("/Spreadsheet/");
+			}
+		}	
+		else{
+			props.route("/yourMaps/");
+		}
+	}
+	else{
+		props.route("/welcome");
+	}
+
 
 	const refetchMaps = async (refetch) => {
 		const { loading, error, data } = await refetch();
@@ -88,9 +186,9 @@ const Homescreen = (props) => {
 	}
 
 	const refetchRegions = async (refetch) => {
-		const { loadingR, errorR, dataR } = await refetch();
-		if (dataR) {
-			regions = dataR.getAllRegions;
+		const { loading, error, data } = await refetch();
+		if (data) {
+			regions = data.getAllRegions;
 			if (activeRegion._id) {
 				let tempID = activeRegion._id;
 				let region = regions.find(region => region._id === tempID);
@@ -132,8 +230,6 @@ const Homescreen = (props) => {
 		  tpsRedo();
 		}
 	}
-
-
 
 	const handleCreateNewMap = async () =>{
 		setRenameId("new");
@@ -220,9 +316,20 @@ const Homescreen = (props) => {
 		setActiveMap(map);
 	}
 
-	const handleSetActiveRegion = (id) => {
+	const setActiveFromSpread = (id) =>{
+		const region = regions.find(region => region.id === id || region._id === id);
+		if(region == undefined){
+			setActiveRegion({});
+		}
+		else{
+			setActiveRegion(region);
+		}
+	}
+
+	const handleSetActiveRegion = async (id) => {
 		const region = regions.find(region => region.id === id || region._id === id);
 		setActiveRegion(region);
+		tpsClear();
 	}
 
 	const handleAncestorClick = (reg) => {
@@ -274,6 +381,7 @@ const Homescreen = (props) => {
 		let transaction = new DeleteRegion_Transaction(parentReg, regId, map, index, DeleteSubregion);
 		props.tps.addTransaction(transaction);
 		tpsRedo();
+		handleRefetch();
 	}
 
 	const handleSort = (regs, col) =>{
@@ -350,20 +458,26 @@ const Homescreen = (props) => {
 	const handleCloseMap = () => {
 		setActiveMap({});
 		setActiveRegion({});
+		toggleSpreadSheet(true);
+		tpsClear();
 	}
 
 	const handleShowRegionViewer = () =>{
 		toggleSpreadSheet(!spreadSheet);
+		tpsClear();
 	}
 
-	const handleDeleteLandmark = (index) =>{
+	const handleDeleteLandmark = async (index) =>{
 		let regId = activeRegion._id;
-		let del = DeleteLandmark({ variables: {_id: regId, landmark: index}, refetchQueries: [{ query: GET_DB_REGIONS }] });
-		refetchMaps(refetch);
-		refetchRegions(regionQuery.refetch);
+		let lm = activeRegion.landmarks[index];
+		let transaction = new DeleteLandmark_Transaction(regId, index, lm, DeleteLandmark);
+		props.tps.addTransaction(transaction);
+		tpsRedo();
 	}
 
 	const handleRenameLandmark = (index) =>{
+		let lm = activeRegion.landmarks[index];
+		setLandmarkName(lm);
 		setLMIndex(index);
 		setShowLM();
 	}
@@ -391,11 +505,52 @@ const Homescreen = (props) => {
 		setActiveRegion(newReg);
 	}
 
-
-	const handleRefetch = () =>{
-		refetchMaps(refetch);
-		refetchRegions(regionQuery.refetch);
+	const handleChangeParent = () =>{
+		setShowCP();
 	}
+
+	const changeParent = (name) =>{
+		let newParent = regions.find(region => region.name == name);
+		let map = false;
+		if(newParent == undefined){
+			alert("A region with this name does not exist");
+		}
+		let oldParent = regions.find(region => region._id == activeRegion.parentRegion);
+		let oldKids = [];
+		if(oldParent == undefined){
+			oldParent = maps.find(map => map._id == activeRegion.parentRegion);
+			oldKids = oldParent.regions;
+			map = true;
+		}
+		else{
+			oldKids = oldParent.subregions;
+		}
+		let indexOld = -1;
+		for(let i = 0; i < oldKids.length; i++){
+			if(oldKids[i] == activeRegion.id){
+				indexOld = i;
+			}
+		}
+		let indexNew = newParent.subregions.length;
+		let idToFind = activeRegion.id;
+		let newParent_id = newParent._id;
+		let oldParent_id = oldParent._id;
+		let transaction = new ChangeParent_Transaction(activeRegion._id, oldParent_id, newParent_id, idToFind, map, indexNew, indexOld, DeleteSubregion, ChangeParentRegion);
+		props.tps.addTransaction(transaction);
+		tpsRedo();
+		//const del = DeleteSubregion({ variables: {_id: oldParent_id, id: idToFind, map: map, index: -1}});
+		//const par = ChangeParentRegion({ variables: {_id: activeRegion._id, new_parent: newParent_id}});
+		//const add = DeleteSubregion({ variables: {_id: newParent_id, id: idToFind, map: false, index: indexNew}});
+		handleRefetch();
+	}
+
+
+	const handleRefetch = async () =>{
+		await refetchMaps(refetch);
+		await refetchRegions(regionQuery.refetch);
+	}
+
+
 
 	const setShowLogin = () => {
 		toggleShowCreate(false);
@@ -404,6 +559,7 @@ const Homescreen = (props) => {
 		toggleShowRename(false);
 		toggleShowLM(false);
 		toggleShowDelete(false);
+		toggleShowCP(false);
 	};
 
 	const setShowCreate = () => {
@@ -413,6 +569,7 @@ const Homescreen = (props) => {
 		toggleShowRename(false);
 		toggleShowLM(false);
 		toggleShowDelete(false);
+		toggleShowCP(false);
 	};
 
 	const setShowUpdate = () => {
@@ -422,6 +579,7 @@ const Homescreen = (props) => {
 		toggleShowRename(false);
 		toggleShowLM(false);
 		toggleShowDelete(false);
+		toggleShowCP(false);
 	};
 	const setShowRename = () => {
 		toggleShowLogin(false);
@@ -430,6 +588,7 @@ const Homescreen = (props) => {
 		toggleShowRename(!showRename);
 		toggleShowLM(false);
 		toggleShowDelete(false);
+		toggleShowCP(false);
 	};
 	const setShowLM = () => {
 		toggleShowLogin(false);
@@ -438,6 +597,7 @@ const Homescreen = (props) => {
 		toggleShowRename(false);
 		toggleShowLM(!showLM);
 		toggleShowDelete(false);
+		toggleShowCP(false);
 	};
 	const setShowDelete = () =>{
 		toggleShowDelete(!showDelete);
@@ -446,6 +606,16 @@ const Homescreen = (props) => {
 		toggleShowUpdate(false);
 		toggleShowRename(false);
 		toggleShowLM(false);
+		toggleShowCP(false);
+	}
+	const setShowCP = () =>{
+		toggleShowDelete(false);
+		toggleShowLogin(false);
+		toggleShowCreate(false);
+		toggleShowUpdate(false);
+		toggleShowRename(false);
+		toggleShowLM(false);
+		toggleShowCP(!showChangeParent);
 	}
 
 	return(
@@ -486,7 +656,10 @@ const Homescreen = (props) => {
 						createNewRegion = {handleCreateNewRegion} setActiveRegion={handleSetActiveRegion}
 						toggleRegionViewer={handleShowRegionViewer} spreadSheet={spreadSheet} editRegion = {handleRegionEdit}
 						deleteRegion = {handleDeleteRegion} handleSort = {handleSort} handleAddLandmark = {handleAddLandmark}
-						deleteLM = {handleDeleteLandmark} renameLM = {handleRenameLandmark}
+						deleteLM = {handleDeleteLandmark} renameLM = {handleRenameLandmark} changeParent = {handleChangeParent}
+						activeSubs = {subregions} landmarks = {landmarks} handleRefetch = {handleRefetch} test = {findChildLandmarks}
+						childLandmarks = {childLandmarks} imagePath = {regImagePath} undo = {tpsUndo} redo = {tpsRedo} tps = {props.tps}
+						setActiveFromSpread = {setActiveFromSpread}
 					/>
 					:
 					<Welcome/>
@@ -507,10 +680,13 @@ const Homescreen = (props) => {
 				showRename && (<NameMap setShowRename={setShowRename} renameId={renameId} setActiveMap = {setActiveMap} refetch ={refetch} createNewMap = {createNewMap}/>)
 			}
 			{
-				showLM && (<NameLandmark setShowLM = {setShowLM} _id = {activeRegion._id} handleRefetch = {handleRefetch} index = {landmarkIndex}/>)
+				showLM && (<NameLandmark setShowLM = {setShowLM} _id = {activeRegion._id} handleRefetch = {handleRefetch} index = {landmarkIndex} tps = {props.tps} redo = {tpsRedo}  prevName = {landmarkName}/>)
 			}
 			{
 				showDelete && (<Delete setShowDelete = {setShowDelete} deleteMap = {deleteMap} type = {deleteType} deleteId = {deleteId} deleteRegion = {deleteRegion}/>)
+			}
+			{
+				showChangeParent && (<ChangeParent setShowCP = {setShowCP} changeParent = {changeParent} />)
 			}
 
 		</WLayout>

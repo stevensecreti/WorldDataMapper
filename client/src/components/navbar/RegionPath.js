@@ -33,7 +33,6 @@ const RegionPath = (props) =>{
         regParent = props.regions.find(region => region._id === parentRegion);
         if(regParent === undefined){
             regParent = props.maps.find(map => map._id === parentRegion);
-            console.log(regParent);
             siblings = regParent.regions;
         }
         else{
@@ -46,7 +45,8 @@ const RegionPath = (props) =>{
     
 
 
-
+    let leftStyle = !sister ? "sister" : "sister-disabled";
+    let rightStyle = !brother ? "brother" : "brother-disabled";
 
 
     const handleAncestorClick = (reg) => {
@@ -78,10 +78,10 @@ const RegionPath = (props) =>{
         {
             sibling ? 
             <div>
-                <WButton className="sister" onClick={handleSisterClick}>
+                <WButton className={leftStyle} onClick={handleSisterClick}>
                     <i className="material-icons">arrow_back</i>
                 </WButton>
-                <WButton className="brother">
+                <WButton className={rightStyle}>
                     <i className="material-icons" onClick={handleBrotherClick}>arrow_forward</i>
                 </WButton>
             </div>

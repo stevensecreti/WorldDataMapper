@@ -39,9 +39,10 @@ const typeDefs = gql `
 		deleteRegion(_id: String!): Boolean
 		deleteSubregion(_id: String!, id: Int!, map: Boolean!, index: Int!): Boolean
 		pushSort(_id: String!, ids: [Int], map: Boolean!): Boolean
-		addLandmark(_id: String!, landmark: String!): Boolean
-		deleteLandmark(_id: String, landmark: Int!): Boolean
+		addLandmark(_id: String!, landmark: String!, code: Int!): Boolean
+		deleteLandmark(_id: String, landmark: Int!, name: String!, code: Int!): Boolean
 		renameLandmark(_id: String, landmark: Int!, name: String!): Boolean
+		changeParent(_id: String!, new_parent: String!): Boolean
 	}
 
 	input FieldInput {

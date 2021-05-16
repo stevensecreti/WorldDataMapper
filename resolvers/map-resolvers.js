@@ -129,6 +129,7 @@ module.exports = {
 			else return false;
 		},
 		deleteSubregion: async (_, args) =>{
+			console.log(args);
 			const { _id, id, map, index } = args;
 			const objId = new ObjectId(_id);
 			if(map){
@@ -151,14 +152,17 @@ module.exports = {
 				const parent = await Region.findOne({_id: objId});
 				let regs = parent.subregions;
 				if(index == -1){
+					console.log(regs);
 					regs = regs.filter(reg => reg != id);
-					const updated = await Region.updateOne({_id: objId}, {regions: regs});
+					console.log(regs);
+					const updated = await Region.updateOne({_id: objId}, {subregions: regs});
+					console.log(updated);
 					if(updated) return true;
 					else return false;
 				}
 				else{
 					regs.splice(index, 0, id);
-					const updated = await Region.updateOne({_id: objId}, {regions: regs});
+					const updated = await Region.updateOne({_id: objId}, {subregions: regs});
 					if(updated) return true;
 					else return false;
 				}
@@ -179,25 +183,47 @@ module.exports = {
 			}
 		},
 		addLandmark: async (_, args) =>{
-			const { _id, landmark } = args;
-			const objId = new ObjectId(_id);
-			const found = await Region.findOne({_id: objId});
-			landmarks = found.landmarks;
-			landmarks.push(landmark);
-			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
-			if(updated) return true;
-			else return false;
+			const { _id, landmark, code } = args;
+			if(code == 0){
+				const objId = new ObjectId(_id);
+				const found = await Region.findOne({_id: objId});
+				landmarks = found.landmarks;
+				landmarks.push(landmark);
+				const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+				if(updated) return true;
+				else return false;
+			}
+			else{
+				const objId = new ObjectId(_id);
+				const found = await Region.findOne({_id: objId});
+				landmarks = found.landmarks;
+				landmarks.pop();
+				const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+				if(updated) return true;
+				else return false;
+			}
 
 		},
 		deleteLandmark: async (_, args) =>{
-			const { _id, landmark } = args;
-			const objId = new ObjectId(_id);
-			const found = await Region.findOne({_id: objId});
-			landmarks = found.landmarks;
-			landmarks.splice(landmark, 1);
-			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
-			if(updated) return true;
-			else return false;
+			const { _id, landmark, name, code } = args;
+			if(code == 0){
+				const objId = new ObjectId(_id);
+				const found = await Region.findOne({_id: objId});
+				landmarks = found.landmarks;
+				landmarks.splice(landmark, 1);
+				const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+				if(updated) return true;
+				else return false;
+			}
+			else{
+				const objId = new ObjectId(_id);
+				const found = await Region.findOne({_id: objId});
+				landmarks = found.landmarks;
+				landmarks.splice(landmark, 0, name);
+				const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+				if(updated) return true;
+				else return false;
+			}
 		},
 		renameLandmark: async (_, args) =>{
 			const { _id, landmark, name } = args;
@@ -206,6 +232,13 @@ module.exports = {
 			landmarks = found.landmarks;
 			landmarks[landmark] = name;
 			const updated = await Region.updateOne({_id: objId}, {landmarks: landmarks});
+			if(updated) return true;
+			else return false;
+		},
+		changeParent: async (_, args) =>{
+			const { _id, new_parent } = args;
+			const objId = new ObjectId(_id);
+			const updated = await Region.updateOne({_id: objId}, {parentRegion: new_parent});
 			if(updated) return true;
 			else return false;
 		}
